@@ -82,6 +82,15 @@ var (
 		{Lat: 67.234563187, Lng: -168.286102782},
 	}
 
+	// bbox of boundary of validCell_1.
+	validGeoLoopBbox = GeoLoop{
+		{Lat: 67.067252558, Lng: -168.626914333},
+		{Lat: 67.234563187, Lng: -168.626914333},
+		{Lat: 67.234563187, Lng: -168.154801171},
+		{Lat: 67.067252558, Lng: -168.154801171},
+		{Lat: 67.067252558, Lng: -168.626914333},
+	}
+
 	validHole1 = GeoLoop{
 		{Lat: 67.2, Lng: -168.4},
 		{Lat: 67.1, Lng: -168.4},
@@ -635,6 +644,61 @@ func TestCellsToMultiPolygon(t *testing.T) {
 	assertErr(t, err)
 	assertErrIs(t, err, ErrCellInvalid)
 	assertNil(t, res)
+}
+
+func TestPolygonToCellsContainment(t *testing.T) {
+	t.Parallel()
+
+	t.Run("empty", func(t *testing.T) {
+		t.Parallel()
+		for _, flag := range []ContainmentMode{
+			CONTAINMENT_CENTER,
+			CONTAINMENT_FULL,
+			CONTAINMENT_OVERLAPPING,
+			CONTAINMENT_OVERLAPPING_BBOX,
+		} {
+			cells := PolygonToCells(GeoPolygon{}, 6, flag)
+			assertEqual(t, 0, len(cells))
+		}
+	})
+
+	t.Run("without holes", func(t *testing.T) {
+		t.Parallel()
+		for _, flag := range []ContainmentMode{
+			CONTAINMENT_CENTER,
+			CONTAINMENT_FULL,
+			CONTAINMENT_OVERLAPPING,
+			CONTAINMENT_OVERLAPPING_BBOX,
+		} {
+			cells := validGeoPolygonNoHoles.Cells(6, flag)
+			expectedCellCounts := map[ContainmentMode]int{
+				CONTAINMENT_CENTER:           7,
+				CONTAINMENT_FULL:             1,
+				CONTAINMENT_OVERLAPPING:      14,
+				CONTAINMENT_OVERLAPPING_BBOX: 21,
+			}
+			assertEqual(t, expectedCellCounts[flag], len(cells))
+		}
+	})
+
+	t.Run("with holes", func(t *testing.T) {
+		t.Parallel()
+		for _, flag := range []ContainmentMode{
+			CONTAINMENT_CENTER,
+			CONTAINMENT_FULL,
+			CONTAINMENT_OVERLAPPING,
+			CONTAINMENT_OVERLAPPING_BBOX,
+		} {
+			cells := validGeoPolygonHoles.Cells(6, flag)
+			expectedCellCounts := map[ContainmentMode]int{
+				CONTAINMENT_CENTER:           6,
+				CONTAINMENT_FULL:             0,
+				CONTAINMENT_OVERLAPPING:      14,
+				CONTAINMENT_OVERLAPPING_BBOX: 21,
+			}
+			assertEqual(t, expectedCellCounts[flag], len(cells))
+		}
+	})
 }
 
 func TestGridPath(t *testing.T) {
