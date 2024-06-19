@@ -70,7 +70,8 @@ echo "Checking out $H3_VERSION (found in file H3_VERSION)"
 git clone "$GIT_REMOTE" "$H3_SRC_DIR"
 
 pushd "$H3_SRC_DIR" || badexit
-    git checkout -q tags/"$H3_VERSION"
+    # git checkout -q tags/"$H3_VERSION"
+    git checkout master
 
     echo Copying source files into working directory
     pushd ./src/h3lib/lib/ || badexit
