@@ -328,27 +328,23 @@ func CellsToMultiPolygon(cells []Cell) ([]GeoPolygon, error) {
 
 	ret := []GeoPolygon{}
 
-	// traverse polygons for linked list of polygons
+	// traverse polygons and build GeoPolygon set
+	ret := []GeoPolygon{}
 	currPoly := cLinkedGeoPolygon
 	for currPoly != nil {
 		loops := []GeoLoop{}
-
-		// traverse loops for a polygon
+		// traverse the loops for polygon
 		currLoop := currPoly.first
 		for currLoop != nil {
 			loop := []LatLng{}
-
-			// traverse points for a loop
 			currPt := currLoop.first
 			for currPt != nil {
 				loop = append(loop, latLngFromC(currPt.vertex))
 				currPt = currPt.next
 			}
-
 			loops = append(loops, loop)
 			currLoop = currLoop.next
 		}
-
 		ret = append(ret, GeoPolygon{GeoLoop: loops[0], Holes: loops[1:]})
 		currPoly = currPoly.next
 	}
