@@ -82,15 +82,6 @@ var (
 		{Lat: 67.234563187, Lng: -168.286102782},
 	}
 
-	// bbox of boundary of validCell_1.
-	validGeoLoopBbox = GeoLoop{
-		{Lat: 67.067252558, Lng: -168.626914333},
-		{Lat: 67.234563187, Lng: -168.626914333},
-		{Lat: 67.234563187, Lng: -168.154801171},
-		{Lat: 67.067252558, Lng: -168.154801171},
-		{Lat: 67.067252558, Lng: -168.626914333},
-	}
-
 	validHole1 = GeoLoop{
 		{Lat: 67.2, Lng: -168.4},
 		{Lat: 67.1, Lng: -168.4},

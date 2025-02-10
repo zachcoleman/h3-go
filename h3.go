@@ -348,23 +348,29 @@ func CellsToMultiPolygon(cells []Cell) ([]GeoPolygon, error) {
 		return nil, err
 	}
 
-	// traverse polygons and build GeoPolygon set
 	ret := []GeoPolygon{}
+
+	// traverse polygons for linked list of polygons
 	currPoly := cLinkedGeoPolygon
 	for currPoly != nil {
 		loops := []GeoLoop{}
-		// traverse the loops for polygon
+
+		// traverse loops for a polygon
 		currLoop := currPoly.first
 		for currLoop != nil {
 			loop := []LatLng{}
+
+			// traverse points for a loop
 			currPt := currLoop.first
 			for currPt != nil {
 				loop = append(loop, latLngFromC(currPt.vertex))
 				currPt = currPt.next
 			}
+
 			loops = append(loops, loop)
 			currLoop = currLoop.next
 		}
+
 		ret = append(ret, GeoPolygon{GeoLoop: loops[0], Holes: loops[1:]})
 		currPoly = currPoly.next
 	}
@@ -726,7 +732,6 @@ func CompactCells(in []Cell) ([]Cell, error) {
 func UncompactCells(in []Cell, resolution int) ([]Cell, error) {
 	cin := cellsToC(in)
 	var csz C.int64_t
-
 	if err := toErr(C.uncompactCellsSize(&cin[0], C.int64_t(len(cin)), C.int(resolution), &csz)); err != nil {
 		return nil, err
 	}
