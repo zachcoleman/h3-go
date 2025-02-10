@@ -54,7 +54,6 @@ typedef struct {
 } IterCellsChildren;
 
 DECLSPEC IterCellsChildren iterInitParent(H3Index h, int childRes);
-void _iterInitParent(H3Index h, int childRes, IterCellsChildren *iter);
 DECLSPEC IterCellsChildren iterInitBaseCellNum(int baseCellNum, int childRes);
 DECLSPEC void iterStepChild(IterCellsChildren *iter);
 

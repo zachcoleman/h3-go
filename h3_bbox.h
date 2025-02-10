@@ -22,7 +22,6 @@
 
 #include <stdbool.h>
 
-#include "h3_h3api.h"
 #include "h3_latLng.h"
 
 /** @struct BBox
@@ -35,21 +34,12 @@ typedef struct {
     double west;   ///< west longitude
 } BBox;
 
-double bboxWidthRads(const BBox *bbox);
-double bboxHeightRads(const BBox *bbox);
 bool bboxIsTransmeridian(const BBox *bbox);
 void bboxCenter(const BBox *bbox, LatLng *center);
 bool bboxContains(const BBox *bbox, const LatLng *point);
-bool bboxContainsBBox(const BBox *a, const BBox *b);
-bool bboxOverlapsBBox(const BBox *a, const BBox *b);
 bool bboxEquals(const BBox *b1, const BBox *b2);
-CellBoundary bboxToCellBoundary(const BBox *bbox);
 H3Error bboxHexEstimate(const BBox *bbox, int res, int64_t *out);
 H3Error lineHexEstimate(const LatLng *origin, const LatLng *destination,
                         int res, int64_t *out);
-void scaleBBox(BBox *bbox, double scale);
-void bboxNormalization(const BBox *a, const BBox *b,
-                       LongitudeNormalization *aNormalization,
-                       LongitudeNormalization *bNormalization);
 
 #endif
