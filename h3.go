@@ -270,11 +270,6 @@ func (c Cell) GridDiskDistances(k int) ([][]Cell, error) {
 // and then any newly found hexagons are used to test again until no new
 // hexagons are found.
 func PolygonToCells(polygon GeoPolygon, resolution int) ([]Cell, error) {
-	// func PolygonToCells(polygon GeoPolygon, resolution int, containmentOpt ...int) []Cell {
-	// 	containmentFlag := 0
-	// 	if len(containmentOpt) > 0 && containmentOpt[0] > 0 && containmentOpt[0] <= 4 {
-	// 		containmentFlag = containmentOpt[0]
-	// 	}
 	if len(polygon.GeoLoop) == 0 {
 		return nil, nil
 	}
@@ -289,10 +284,36 @@ func PolygonToCells(polygon GeoPolygon, resolution int) ([]Cell, error) {
 
 	out := make([]C.H3Index, *maxLen)
 	errC := C.polygonToCells(&cpoly, C.int(resolution), 0, &out[0])
-	C.maxPolygonToCellsSize(&cpoly, C.int(resolution), C.uint32_t(containmentFlag), maxLen)
+
+	return cellsFromC(out, true, false), toErr(errC)
+}
+
+// PolygonToCells takes a given GeoJSON-like data structure fills it with the
+// hexagon cells that are contained by the GeoJSON-like data structure.
+//
+// This implementation traces the GeoJSON geoloop(s) in cartesian space with
+// hexagons, tests them and their neighbors to be contained by the geoloop(s),
+// and then any newly found hexagons are used to test again until no new
+// hexagons are found.
+func PolygonToCellsExperimental(polygon GeoPolygon, resolution int, mode ContainmentMode, maxNumCellsReturn ...int64) ([]Cell, error) {
+	var maxNumCells int64 = math.MaxInt64
+	if len(maxNumCellsReturn) > 0 {
+		maxNumCells = maxNumCellsReturn[0]
+	}
+	if len(polygon.GeoLoop) == 0 {
+		return nil, nil
+	}
+	cpoly := allocCGeoPolygon(polygon)
+
+	defer freeCGeoPolygon(&cpoly)
+
+	maxLen := new(C.int64_t)
+	if err := toErr(C.maxPolygonToCellsSizeExperimental(&cpoly, C.int(resolution), C.uint32_t(mode), maxLen)); err != nil {
+		return nil, err
+	}
 
 	out := make([]C.H3Index, *maxLen)
-	C.polygonToCellsExperimental(&cpoly, C.int(resolution), C.uint32_t(containmentFlag), math.MaxInt64, &out[0])
+	errC := C.polygonToCellsExperimental(&cpoly, C.int(resolution), C.uint32_t(mode), C.int64_t(maxNumCells), &out[0])
 
 	return cellsFromC(out, true, false), toErr(errC)
 }
@@ -325,8 +346,6 @@ func CellsToMultiPolygon(cells []Cell) ([]GeoPolygon, error) {
 	if err := toErr(C.cellsToLinkedMultiPolygon(&h3Indexes[0], C.int(len(h3Indexes)), cLinkedGeoPolygon)); err != nil {
 		return nil, err
 	}
-
-	ret := []GeoPolygon{}
 
 	// traverse polygons and build GeoPolygon set
 	ret := []GeoPolygon{}

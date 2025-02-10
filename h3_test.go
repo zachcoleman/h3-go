@@ -646,7 +646,7 @@ func TestCellsToMultiPolygon(t *testing.T) {
 	assertNil(t, res)
 }
 
-func TestPolygonToCellsContainment(t *testing.T) {
+func TestPolygonToCellsExperimental(t *testing.T) {
 	t.Parallel()
 
 	t.Run("empty", func(t *testing.T) {
@@ -657,7 +657,10 @@ func TestPolygonToCellsContainment(t *testing.T) {
 			CONTAINMENT_OVERLAPPING,
 			CONTAINMENT_OVERLAPPING_BBOX,
 		} {
-			cells := PolygonToCells(GeoPolygon{}, 6, flag)
+			cells, err := PolygonToCellsExperimental(GeoPolygon{}, 6, flag)
+			if err != nil {
+				t.Error(t)
+			}
 			assertEqual(t, 0, len(cells))
 		}
 	})
@@ -670,7 +673,10 @@ func TestPolygonToCellsContainment(t *testing.T) {
 			CONTAINMENT_OVERLAPPING,
 			CONTAINMENT_OVERLAPPING_BBOX,
 		} {
-			cells := validGeoPolygonNoHoles.Cells(6, flag)
+			cells, err := PolygonToCellsExperimental(validGeoPolygonNoHoles, 6, flag)
+			if err != nil {
+				t.Error(t)
+			}
 			expectedCellCounts := map[ContainmentMode]int{
 				CONTAINMENT_CENTER:           7,
 				CONTAINMENT_FULL:             1,
@@ -689,7 +695,10 @@ func TestPolygonToCellsContainment(t *testing.T) {
 			CONTAINMENT_OVERLAPPING,
 			CONTAINMENT_OVERLAPPING_BBOX,
 		} {
-			cells := validGeoPolygonHoles.Cells(6, flag)
+			cells, err := PolygonToCellsExperimental(validGeoPolygonHoles, 6, flag)
+			if err != nil {
+				t.Error(t)
+			}
 			expectedCellCounts := map[ContainmentMode]int{
 				CONTAINMENT_CENTER:           6,
 				CONTAINMENT_FULL:             0,
@@ -697,6 +706,20 @@ func TestPolygonToCellsContainment(t *testing.T) {
 				CONTAINMENT_OVERLAPPING_BBOX: 21,
 			}
 			assertEqual(t, expectedCellCounts[flag], len(cells))
+		}
+	})
+
+	t.Run("busting memory", func(t *testing.T) {
+		t.Parallel()
+		for _, flag := range []ContainmentMode{
+			CONTAINMENT_CENTER,
+			CONTAINMENT_OVERLAPPING,
+			CONTAINMENT_OVERLAPPING_BBOX,
+		} {
+			_, err := PolygonToCellsExperimental(validGeoPolygonHoles, 6, flag, 3)
+			if err != ErrMemoryBounds {
+				t.Error(t)
+			}
 		}
 	})
 }
