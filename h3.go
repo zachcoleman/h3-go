@@ -292,7 +292,7 @@ func PolygonToCells(polygon GeoPolygon, resolution int) ([]Cell, error) {
 	C.maxPolygonToCellsSize(&cpoly, C.int(resolution), C.uint32_t(containmentFlag), maxLen)
 
 	out := make([]C.H3Index, *maxLen)
-	C.polygonToCellsExperimental(&cpoly, C.int(resolution), C.uint32_t(containmentFlag), &out[0])
+	C.polygonToCellsExperimental(&cpoly, C.int(resolution), C.uint32_t(containmentFlag), math.MaxInt64, &out[0])
 
 	return cellsFromC(out, true, false), toErr(errC)
 }
