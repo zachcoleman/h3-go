@@ -70,11 +70,11 @@ const (
 	RadsToDegs = 180.0 / math.Pi
 
 	// PolygonToCells containment modes
-	CONTAINMENT_CENTER           ContainmentMode = C.CONTAINMENT_CENTER           // Cell center is contained in the shape
-	CONTAINMENT_FULL             ContainmentMode = C.CONTAINMENT_FULL             // Cell is fully contained in the shape
-	CONTAINMENT_OVERLAPPING      ContainmentMode = C.CONTAINMENT_OVERLAPPING      // Cell overlaps the shape at any point
-	CONTAINMENT_OVERLAPPING_BBOX ContainmentMode = C.CONTAINMENT_OVERLAPPING_BBOX // Cell bounding box overlaps shape
-	CONTAINMENT_INVALID          ContainmentMode = C.CONTAINMENT_INVALID          // This mode is invalid and should not be used
+	ContainmentCenter          ContainmentMode = C.CONTAINMENT_CENTER           // Cell center is contained in the shape
+	ContainmentFull            ContainmentMode = C.CONTAINMENT_FULL             // Cell is fully contained in the shape
+	ContainmentOverlapping     ContainmentMode = C.CONTAINMENT_OVERLAPPING      // Cell overlaps the shape at any point
+	ContainmentOverlappingBbox ContainmentMode = C.CONTAINMENT_OVERLAPPING_BBOX // Cell bounding box overlaps shape
+	ContainmentInvalid         ContainmentMode = C.CONTAINMENT_INVALID          // This mode is invalid and should not be used
 )
 
 // Error codes.
@@ -234,6 +234,7 @@ func GridDiskDistances(origin Cell, k int) ([][]Cell, error) {
 	rsz := maxGridDiskSize(k)
 	outHexes := make([]C.H3Index, rsz)
 	outDists := make([]C.int, rsz)
+
 	if err := toErr(C.gridDiskDistances(C.H3Index(origin), C.int(k), &outHexes[0], &outDists[0])); err != nil {
 		return nil, err
 	}
@@ -725,6 +726,7 @@ func CompactCells(in []Cell) ([]Cell, error) {
 func UncompactCells(in []Cell, resolution int) ([]Cell, error) {
 	cin := cellsToC(in)
 	var csz C.int64_t
+
 	if err := toErr(C.uncompactCellsSize(&cin[0], C.int64_t(len(cin)), C.int(resolution), &csz)); err != nil {
 		return nil, err
 	}
