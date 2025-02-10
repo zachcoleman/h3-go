@@ -3,7 +3,7 @@ package h3_test
 import (
 	"fmt"
 
-	"github.com/zachcoleman/h3-go/v4"
+	"github.com/uber/h3-go/v4"
 )
 
 func ExampleLatLngToCell() {
