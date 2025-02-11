@@ -27,6 +27,7 @@ package h3
 #include <h3_h3Index.h>
 #include <h3_polygon.h>
 #include <h3_polyfill.h>
+#include <h3_faceijk.h>
 */
 import "C"
 
@@ -127,6 +128,17 @@ type (
 
 	CoordIJ struct {
 		I, J int
+	}
+
+	CoordIJK struct {
+		I, J, K int
+	}
+
+	Face int
+
+	FaceIJK struct {
+		Coord CoordIJK
+		Face  int
 	}
 
 	// CellBoundary is a slice of LatLng.  Note, len(CellBoundary) will never
@@ -1058,4 +1070,18 @@ func toErr(errC C.uint32_t) error {
 	}
 
 	return ErrUnknown
+}
+
+func GeoToFaceIJK(pt LatLng, res int) FaceIJK {
+	var out C.FaceIJK
+	cLatLng := pt.toCPtr()
+	C._geoToFaceIjk(cLatLng, C.int(res), &out)
+	return FaceIJK{
+		Coord: CoordIJK{
+			I: int(out.coord.i),
+			J: int(out.coord.j),
+			K: int(out.coord.k),
+		},
+		Face: int(out.face),
+	}
 }

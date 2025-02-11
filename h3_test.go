@@ -1451,3 +1451,10 @@ func TestToErr(t *testing.T) {
 		assertErrIs(t, toErr(999), ErrUnknown)
 	})
 }
+
+func TestGeoToFaceIJK(t *testing.T) {
+	for i := 1; i <= 15; i++ {
+		fmt.Println(GeoToFaceIJK(validLatLng1, i))
+		fmt.Println(GeoToFaceIJK(validLatLng2, i))
+	}
+}
